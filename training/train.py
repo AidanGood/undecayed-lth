@@ -98,13 +98,15 @@ def train(
         train_loader.shuffle(None if data_order_seed is None else (data_order_seed + ep))
 
         for it, (examples, labels) in enumerate(train_loader):
+            
 
             # Advance the data loader until the start epoch and iteration.
             if ep == start_step.ep and it < start_step.it: continue
 
             # Run the callbacks.
             step = Step.from_epoch(ep, it, train_loader.iterations_per_epoch)
-            for callback in callbacks: callback(output_location, step, model, optimizer, logger)
+            for callback in callbacks: 
+                callback(output_location, step, model, optimizer, logger)
 
             # Exit at the end step.
             if ep == end_step.ep and it == end_step.it: return

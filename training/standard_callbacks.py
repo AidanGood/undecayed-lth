@@ -109,6 +109,13 @@ def run_at_step(step1, callback):
         callback(output_location, step, model, optimizer, logger)
     return modified_callback
 
+def run_at_it(it, callback):
+    def modified_callback(output_location, step, model, optimizer, logger):
+        if step.it != it:
+            return
+        callback(output_location, step, model, optimizer, logger)
+    return modified_callback
+
 
 # The standard set of callbacks that should be used for a normal training run.
 def standard_callbacks(training_hparams: hparams.TrainingHparams, train_set_loader: DataLoader,
@@ -126,6 +133,11 @@ def standard_callbacks(training_hparams: hparams.TrainingHparams, train_set_load
         run_at_step(end, save_logger),
         run_every_epoch(checkpointing.save_checkpoint_callback),
     ]
+    
+    # Experiment, run logging every 10 iterations instead of every 1,000 for greater resolution
+    list_it = [x for x in range(1, 999) if x%50==0]
+    for it in list_it:
+        result = [run_at_it(it, test_eval_callback)] + result
 
     # Test every epoch if requested.
     if evaluate_every_epoch: result = [run_every_epoch(test_eval_callback)] + result
